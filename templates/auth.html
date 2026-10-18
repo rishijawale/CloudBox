@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create account' if mode == 'register' else 'Sign in' }}{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-side glass-panel">
+    <div class="eyebrow"><span class="pulse"></span> YOUR FILES, YOUR SPACE</div>
+    <h1>{{ 'Start with a clean slate.' if mode == 'register' else 'Welcome back.' }}</h1>
+    <p>{{ 'Create your private CloudBox account and keep your documents organized in one local workspace.' if mode == 'register' else 'Sign in to get back to your files, folders and shared links.' }}</p>
+    <div class="auth-points"><div><span>01</span> Private user workspace</div><div><span>02</span> Passwords hashed before storage</div><div><span>03</span> Links you can revoke or expire</div></div>
+  </div>
+  <div class="auth-card glass-panel">
+    <div class="auth-card-top"><div class="brand-mark">☁</div><span class="tiny-label">CLOUDBOX ACCOUNT</span></div>
+    <h2>{{ 'Create your account' if mode == 'register' else 'Sign in to CloudBox' }}</h2>
+    <p class="muted">{{ 'A few details and you are in.' if mode == 'register' else 'Your workspace is waiting.' }}</p>
+    <form method="post" class="form-stack">
+      {{ form.hidden_tag() }}
+      <label for="{{ form.username.id }}">Username</label>
+      {{ form.username(class_='input', placeholder='e.g. rushi.dev', autocomplete='username') }}
+      {% for error in form.username.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      <label for="{{ form.password.id }}">Password</label>
+      {{ form.password(class_='input', placeholder='At least 10 characters', autocomplete='new-password' if mode == 'register' else 'current-password') }}
+      {% for error in form.password.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      {% if mode == 'register' %}
+        <label for="{{ form.confirm.id }}">Confirm password</label>
+        {{ form.confirm(class_='input', placeholder='Enter password again', autocomplete='new-password') }}
+        {% for error in form.confirm.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      {% endif %}
+      {{ form.submit(class_='button button-primary button-full') }}
+    </form>
+    <p class="auth-switch">{% if mode == 'register' %}Already registered? <a href="{{ url_for('login') }}">Sign in</a>{% else %}New to CloudBox? <a href="{{ url_for('register') }}">Create an account</a>{% endif %}</p>
+  </div>
+</section>
+{% endblock %}

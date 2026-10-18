@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Link unavailable{% endblock %}
+{% block content %}
+<section class="shared-wrap"><div class="glass-panel shared-card"><div class="shared-icon">⌁</div><h1>This link is no longer <span class="gradient-text">available.</span></h1><p class="muted">The owner may have revoked this link, or its expiry date has passed.</p><a class="button button-glass button-full" href="{{ url_for('index') }}">Go to CloudBox</a></div></section>
+{% endblock %}

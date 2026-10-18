@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Shared links{% endblock %}
+{% block content %}
+<section class="dashboard-heading"><div><div class="eyebrow"><span class="pulse"></span> ACCESS CONTROL</div><h1>Shared <span class="gradient-text">links.</span></h1><p class="muted">Review, revoke and manage the links you created.</p></div><a class="button button-glass" href="{{ url_for('dashboard') }}">← Back to workspace</a></section>
+<section class="glass-panel content-panel shares-panel"><div class="section-head"><div><h2>Your share links</h2><p class="muted">Expired or revoked links no longer provide access.</p></div></div>
+{% if links %}<div class="share-list">
+{% for link in links %}
+<div class="share-row"><div class="share-file-icon">↗</div><div class="share-details"><strong>File #{{ link.file_id }}</strong><small>{{ link.permission|title }} · Expires {{ link.expires_at.strftime('%d %b %Y, %H:%M UTC') }}</small><div class="share-url"><a href="{{ url_for('shared_file', token=link.token, _external=True) }}" target="_blank" rel="noopener">{{ url_for('shared_file', token=link.token, _external=True) }}</a><button class="copy-button" type="button" data-copy="{{ url_for('shared_file', token=link.token, _external=True) }}">Copy</button></div></div>
+<div class="share-status">{% if link.revoked %}<span class="status-chip status-revoked">Revoked</span>{% elif link.expires_at <= now %}<span class="status-chip status-expired">Expired</span>{% else %}<span class="status-chip status-active">Active</span>{% endif %}</div>
+{% if not link.revoked and link.expires_at > now %}<form method="post" action="{{ url_for('revoke_share', share_id=link.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-ghost button-small" type="submit">Revoke</button></form>{% endif %}
+</div>
+{% endfor %}</div>{% else %}<div class="empty-state"><span>↗</span><strong>No share links yet</strong><small>Create a link from the workspace file list.</small><a class="button button-primary" href="{{ url_for('dashboard') }}">Go to files</a></div>{% endif %}
+</section>
+{% endblock %}

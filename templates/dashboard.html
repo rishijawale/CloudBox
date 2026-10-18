@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Workspace{% endblock %}
+{% block content %}
+<section class="dashboard-heading">
+  <div><div class="eyebrow"><span class="pulse"></span> YOUR WORKSPACE</div><h1>Good things go <span class="gradient-text">here.</span></h1><p class="muted">Manage your files without the clutter.</p></div>
+  <label class="button button-primary upload-cta" for="file-input">＋ Upload files</label>
+</section>
+<section class="stats-grid">
+  <div class="stat-card glass-panel"><div class="stat-top"><span>Total files</span><span class="stat-icon purple">▤</span></div><strong>{{ total_files }}</strong><small>Files in your workspace</small></div>
+  <div class="stat-card glass-panel"><div class="stat-top"><span>Storage used</span><span class="stat-icon blue">◈</span></div><strong>{{ readable_size(total_bytes) }}</strong><small>Local disk storage</small></div>
+  <div class="stat-card glass-panel"><div class="stat-top"><span>Folders</span><span class="stat-icon green">▣</span></div><strong>{{ total_folders }}</strong><small>Custom folders created</small></div>
+  <div class="stat-card glass-panel"><div class="stat-top"><span>Sharing</span><span class="stat-icon pink">↗</span></div><strong>In control</strong><small>Revoke links anytime</small></div>
+</section>
+<section class="workspace-grid">
+  <div class="main-column">
+    <div class="glass-panel content-panel">
+      <div class="section-head">
+        <div><h2>My files</h2><p class="muted">Your personal library</p></div>
+        <form method="get" action="{{ url_for('dashboard') }}" class="search-box"><span>⌕</span><input id="file-search" type="search" placeholder="Search this view..." aria-label="Search files"></form>
+      </div>
+      <div class="breadcrumbs"><a href="{{ url_for('dashboard') }}">All files</a>{% for crumb in breadcrumbs %}<span>›</span><a href="{{ url_for('dashboard', folder=crumb.id) }}">{{ crumb.name }}</a>{% endfor %}</div>
+      <form class="upload-drop" method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data" id="upload-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="folder_id" value="{{ folder.id if folder else '' }}">
+        <input type="file" name="files" id="file-input" multiple hidden>
+        <div class="drop-icon">↥</div><div><strong>Drop files here or <label for="file-input" class="text-link">browse files</label></strong><small>PDF, images, documents, CSV, ZIP · up to 25 MB per request</small></div>
+        <button type="submit" class="button button-glass button-small">Upload</button>
+      </form>
+      <div class="toolbar-row"><h3>Folders <span class="count-pill">{{ folders|length }}</span></h3>
+        <form method="post" action="{{ url_for('create_folder') }}" class="create-folder-form">
+          {{ folder_form.hidden_tag() }}<input type="hidden" name="parent_id" value="{{ folder.id if folder else '' }}">
+          {{ folder_form.name(class_='input input-compact', placeholder='New folder name', aria_label='New folder name') }}
+          <button class="button button-glass button-small" type="submit">＋ New folder</button>
+        </form>
+      </div>
+      <div class="folder-grid">
+        {% for item in folders %}
+        <div class="folder-card searchable" data-search="{{ item.name|lower }}">
+          <a href="{{ url_for('dashboard', folder=item.id) }}" class="folder-link"><span class="folder-graphic">▰</span><span class="folder-name">{{ item.name }}</span><span class="folder-arrow">↗</span></a>
+          <form method="post" action="{{ url_for('delete_folder', folder_id=item.id) }}" onsubmit="return confirm('Delete this empty folder?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="icon-button" title="Delete empty folder" aria-label="Delete folder">×</button></form>
+        </div>
+        {% else %}<div class="empty-inline">No folders here yet. Create one to organize your files.</div>{% endfor %}
+      </div>
+      <div class="toolbar-row files-toolbar"><h3>Files <span class="count-pill">{{ files|length }}</span></h3><span class="muted tiny-label">LATEST FIRST</span></div>
+      <div class="file-table-wrap"><table class="file-table"><thead><tr><th>Name</th><th>Size</th><th>Uploaded</th><th class="align-right">Actions</th></tr></thead><tbody id="file-rows">
+      {% for item in files %}
+      <tr class="searchable" data-search="{{ item.original_name|lower }}">
+        <td><div class="file-name-cell"><span class="file-type type-{{ item.original_name.rsplit('.', 1)[-1]|lower if '.' in item.original_name else 'file' }}">{{ item.original_name.rsplit('.', 1)[-1]|upper if '.' in item.original_name else 'FILE' }}</span><span class="file-name-text">{{ item.original_name }}</span></div></td>
+        <td class="muted nowrap">{{ readable_size(item.size) }}</td><td class="muted nowrap">{{ item.uploaded_at.strftime('%d %b %Y') }}</td>
+        <td><div class="action-group"><a class="icon-button" href="{{ url_for('download', file_id=item.id) }}" title="Download" aria-label="Download file">↓</a><button class="icon-button" type="button" data-share-open="{{ item.id }}" data-file-name="{{ item.original_name|e }}" title="Share" aria-label="Share file">↗</button>
+        <form method="post" action="{{ url_for('delete_file', file_id=item.id) }}" onsubmit="return confirm('Delete this file and its share links?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="icon-button danger-hover" type="submit" title="Delete" aria-label="Delete file">×</button></form></div></td>
+      </tr>
+      {% else %}<tr class="empty-row"><td colspan="4"><div class="empty-state"><span>◫</span><strong>No files in this folder yet</strong><small>Upload a file to see it appear here.</small></div></td></tr>{% endfor %}
+      </tbody></table></div>
+    </div>
+  </div>
+  <aside class="side-column">
+    <div class="glass-panel side-panel storage-panel"><div class="side-title"><h3>Storage overview</h3><span class="stat-icon blue">◈</span></div><div class="storage-ring"><div class="ring-inner"><span>LOCAL</span><strong>Disk</strong></div></div><p class="muted centered">Your files are saved on this server.</p><div class="legend-row"><span><i class="legend-dot purple-dot"></i>File storage</span><strong>{{ readable_size(total_bytes) }}</strong></div><div class="legend-row"><span><i class="legend-dot blue-dot"></i>Configured upload limit</span><strong>25 MB/request</strong></div><div class="note-box">This demo stores files locally. Keep backups of anything important.</div></div>
+    <div class="glass-panel side-panel"><div class="side-title"><h3>Recently added</h3><span class="muted">↗</span></div><div class="recent-list">
+      {% for item in recent_files %}<div class="recent-item"><span class="recent-file-icon">▤</span><div><strong>{{ item.original_name }}</strong><small>{{ item.uploaded_at.strftime('%d %b, %H:%M') }}</small></div><a href="{{ url_for('download', file_id=item.id) }}" aria-label="Download {{ item.original_name }}">↓</a></div>
+      {% else %}<p class="muted small-copy">Your recent uploads will appear here.</p>{% endfor %}
+    </div></div>
+    <div class="glass-panel side-panel docker-note"><div class="docker-mark">◈</div><h3>Portable by design</h3><p class="muted">CloudBox is built to run locally or inside a Docker container with persistent storage.</p><span class="status-label"><i></i> Container-ready</span></div>
+  </aside>
+</section>
+
+<div class="modal-backdrop" id="share-modal" hidden>
+  <section class="share-modal glass-panel" role="dialog" aria-modal="true" aria-labelledby="share-title">
+    <button class="modal-close" type="button" id="share-close" aria-label="Close">×</button>
+    <div class="modal-symbol">↗</div><div class="eyebrow">CONTROLLED ACCESS</div><h2 id="share-title">Share a file</h2><p class="muted" id="share-file-name">Choose how others can access this file.</p>
+    <form method="post" id="share-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="permission">Permission</label><select class="input" name="permission" id="permission"><option value="download">View and download</option><option value="view">View page only (no download button)</option></select>
+      <label for="days">Link expiry</label><select class="input" name="days" id="days"><option value="1">1 day</option><option value="7" selected>7 days</option><option value="14">14 days</option><option value="30">30 days</option></select>
+      <p class="muted small-copy">Anyone with the link can access it until it expires or you revoke it. Do not share sensitive files publicly.</p>
+      <button class="button button-primary button-full" type="submit">Create secure link</button>
+    </form>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script>
+document.querySelectorAll("[data-share-open]").forEach(button => {
+  button.addEventListener("click", () => {
+    const modal = document.getElementById("share-modal");
+    document.getElementById("share-file-name").textContent = button.dataset.fileName;
+    document.getElementById("share-form").action = `/files/${button.dataset.shareOpen}/share`;
+    modal.hidden = false;
+  });
+});
+document.getElementById("share-close").addEventListener("click", () => document.getElementById("share-modal").hidden = true);
+document.getElementById("share-modal").addEventListener("click", e => { if (e.target.id === "share-modal") e.currentTarget.hidden = true; });
+document.addEventListener("keydown", e => { if (e.key === "Escape") document.getElementById("share-modal").hidden = true; });
+</script>{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Shared file{% endblock %}
+{% block content %}
+<section class="shared-wrap"><div class="glass-panel shared-card"><div class="shared-icon">↗</div><div class="eyebrow"><span class="pulse"></span> CLOUDBOX SHARE</div><h1>A file was shared <span class="gradient-text">with you.</span></h1><p class="muted">This link provides limited access to one file. Only open files you trust.</p><div class="shared-file-row"><span class="file-type">{{ item.original_name.rsplit('.', 1)[-1]|upper if '.' in item.original_name else 'FILE' }}</span><div><strong>{{ item.original_name }}</strong><small>{{ readable_size(item.size) }} · Shared link</small></div></div>
+{% if link.permission == 'download' %}<a class="button button-primary button-full" href="{{ url_for('shared_file', token=link.token, download=1) }}">Download file ↓</a>{% else %}<div class="note-box">This link allows viewing the share page but does not permit downloading through CloudBox.</div>{% endif %}
+<p class="muted small-copy">Link expires {{ link.expires_at.strftime('%d %b %Y, %H:%M UTC') }}. The file owner can revoke access at any time.</p></div></section>
+{% endblock %}

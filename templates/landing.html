@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Your files, beautifully organized{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow"><span class="pulse"></span> YOUR PERSONAL FILE SPACE</div>
+    <h1>All your files.<br><span class="gradient-text">One clear space.</span></h1>
+    <p class="hero-description">A personal cloud-storage experience for the files that matter. Upload, organize, download and share — wrapped in a container that can travel between environments.</p>
+    <div class="hero-actions">
+      <a class="button button-primary button-large" href="{{ url_for('register') }}">Create your space <span>↗</span></a>
+      <a class="button button-glass button-large" href="{{ url_for('login') }}">I already have an account</a>
+    </div>
+    <div class="hero-trust"><span>✦</span> Local-first storage <span>✦</span> Secure share links <span>✦</span> Docker-ready</div>
+  </div>
+  <div class="hero-visual">
+    <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+    <div class="glass-preview">
+      <div class="preview-top"><span class="preview-dots"><i></i><i></i><i></i></span><span class="tiny-label">YOUR WORKSPACE</span><span class="preview-plus">＋</span></div>
+      <div class="preview-heading"><div><small>GOOD TO SEE YOU</small><h3>Your space, simplified.</h3></div><div class="avatar">C</div></div>
+      <div class="preview-storage"><div class="storage-head"><span>Storage overview</span><strong>Local disk</strong></div><div class="storage-track"><span></span></div><div class="storage-foot"><span>Ready when you are</span><span class="green-text">● Private</span></div></div>
+      <div class="preview-files">
+        <div class="mini-file"><div class="file-icon icon-purple">▤</div><div><strong>Project notes</strong><small>PDF document</small></div><span>•••</span></div>
+        <div class="mini-file"><div class="file-icon icon-blue">▧</div><div><strong>Design assets</strong><small>Image files</small></div><span>•••</span></div>
+        <div class="mini-file"><div class="file-icon icon-green">▦</div><div><strong>Data report</strong><small>Spreadsheet</small></div><span>•••</span></div>
+      </div>
+    </div>
+    <div class="floating-chip chip-one"><span class="chip-icon">↗</span><div><strong>Share securely</strong><small>Expiring links</small></div></div>
+    <div class="floating-chip chip-two"><span class="chip-icon chip-icon-green">✓</span><div><strong>Your files, your space</strong><small>Stored locally</small></div></div>
+  </div>
+</section>
+<section class="feature-strip">
+  <div><span class="feature-symbol">↥</span><strong>Simple uploads</strong><small>Bring files into one place</small></div>
+  <div><span class="feature-symbol">▣</span><strong>Folders that make sense</strong><small>Keep everything organized</small></div>
+  <div><span class="feature-symbol">↗</span><strong>Controlled sharing</strong><small>Expiry and revocation options</small></div>
+</section>
+{% endblock %}
